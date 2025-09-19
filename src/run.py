@@ -265,7 +265,9 @@ class NewsAutomation:
     
     def open_key_setup(self):
         """API 키 설정 창 열기"""
-        os.system("python src/key_setup.py")
+        import subprocess
+        import sys
+        subprocess.Popen([sys.executable, "key_setup.py"], cwd="src")
         self.load_keys()  # 키 다시 로드
     
     def log_message(self, message):
