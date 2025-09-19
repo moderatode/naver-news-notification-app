@@ -50,6 +50,7 @@ class NewsAutomation:
         
         self.setup_ui()
         self.load_keys()
+        self.on_sort_change()  # 초기 상태 설정
         
     def setup_ui(self):
         """GUI 설정"""
@@ -109,7 +110,19 @@ class NewsAutomation:
         
         ttk.Label(news_frame, text="정렬:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
         self.sort_var = tk.StringVar(value="최신")
-        ttk.Combobox(news_frame, textvariable=self.sort_var, values=["최신", "관련도", "조회수"], state="readonly", width=10).grid(row=0, column=3)
+        sort_combo = ttk.Combobox(news_frame, textvariable=self.sort_var, values=["최신", "관련도"], state="readonly", width=10)
+        sort_combo.grid(row=0, column=3)
+        sort_combo.bind("<<ComboboxSelected>>", self.on_sort_change)
+        
+        # 키워드 입력 (관련도순 선택 시에만 표시)
+        ttk.Label(news_frame, text="키워드:").grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
+        self.keyword_var = tk.StringVar(value="정치 경제 사회")
+        self.keyword_entry = ttk.Entry(news_frame, textvariable=self.keyword_var, width=30)
+        self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        
+        # 키워드 프레임 (초기에는 숨김)
+        self.keyword_frame = ttk.Frame(news_frame)
+        self.keyword_frame.grid(row=1, column=0, columnspan=4, sticky=tk.W, pady=(10, 0))
         
         # 스케줄 설정
         schedule_frame = ttk.LabelFrame(main_frame, text="스케줄 설정", padding="10")
@@ -129,6 +142,11 @@ class NewsAutomation:
         ttk.Label(schedule_frame, text="시간(예: 08:30,12:00,18:00):").grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
         self.alarm_var = tk.StringVar(value="08:30,12:00,18:00")
         ttk.Entry(schedule_frame, textvariable=self.alarm_var, width=30).grid(row=2, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        
+        # 알람 모드 설명
+        alarm_info = ttk.Label(schedule_frame, text="※ 알람 모드: 지정된 시간에만 실행 (예: 08:30, 12:00, 18:00)", 
+                              font=("Arial", 8), foreground="gray")
+        alarm_info.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
         
         # 제어 버튼
         control_frame = ttk.Frame(main_frame)
@@ -172,6 +190,15 @@ class NewsAutomation:
                 self.key_status_label.config(text="API 키 미설정", foreground="red")
         except Exception as e:
             self.log_message(f"키 로드 오류: {str(e)}")
+    
+    def on_sort_change(self, event=None):
+        """정렬 방식 변경 시 키워드 입력 칸 표시/숨김"""
+        if self.sort_var.get() == "관련도":
+            # 키워드 입력 칸 표시
+            self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        else:
+            # 키워드 입력 칸 숨김
+            self.keyword_entry.grid_remove()
     
     def open_key_setup(self):
         """API 키 설정 창 열기"""
@@ -253,27 +280,30 @@ class NewsAutomation:
                 "X-Naver-Client-Secret": self.naver_secret
             }
             
-            # 조회수 높은 뉴스를 위한 키워드 전략
-            current_hour = datetime.now().hour
-            if 6 <= current_hour < 12:
-                query = "정치 경제 사회 아침뉴스"
-            elif 12 <= current_hour < 18:
-                query = "경제 사회 정치 오후뉴스"
-            elif 18 <= current_hour < 22:
-                query = "정치 사회 경제 저녁뉴스"
+            # 검색 키워드 설정
+            if self.sort_var.get() == "관련도":
+                # 사용자가 입력한 키워드 사용
+                query = self.keyword_var.get().strip()
+                if not query:
+                    query = "정치 경제 사회"  # 기본값
             else:
-                query = "뉴스 정치 경제 사회"
+                # 최신순: 시간대별 키워드
+                current_hour = datetime.now().hour
+                if 6 <= current_hour < 12:
+                    query = "정치 경제 사회 아침뉴스"
+                elif 12 <= current_hour < 18:
+                    query = "경제 사회 정치 오후뉴스"
+                elif 18 <= current_hour < 22:
+                    query = "정치 사회 경제 저녁뉴스"
+                else:
+                    query = "뉴스 정치 경제 사회"
             
-            # 조회수 높은 뉴스를 위한 정렬 전략
-            sort_option = "sim"  # 관련도순이 조회수 높은 뉴스와 유사
-            if self.sort_var.get() == "최신":
-                sort_option = "date"
-            elif self.sort_var.get() == "조회수":
-                sort_option = "sim"  # 관련도순으로 대체
+            # 정렬 옵션 설정
+            sort_option = "date" if self.sort_var.get() == "최신" else "sim"
             
             params = {
                 "query": query,
-                "display": int(self.count_var.get()) * 2,  # 더 많이 가져와서 필터링
+                "display": int(self.count_var.get()) * 3,  # 중복 제거를 위해 더 많이 가져오기
                 "sort": sort_option
             }
             
@@ -297,9 +327,8 @@ class NewsAutomation:
                         "pub_date": pub_date
                     })
                 
-                # 조회수 높은 뉴스 선별 로직
-                if self.sort_var.get() == "조회수":
-                    news_list = self.filter_high_view_news(news_list)
+                # 중복 제거
+                news_list = self.remove_duplicates(news_list)
                 
                 # 요청한 개수만큼만 반환
                 return news_list[:int(self.count_var.get())]
@@ -314,6 +343,31 @@ class NewsAutomation:
         except Exception as e:
             self.log_message(f"뉴스 가져오기 오류: {str(e)}")
             return []
+    
+    def remove_duplicates(self, news_list):
+        """중복 뉴스 제거"""
+        try:
+            seen_titles = set()
+            seen_links = set()
+            unique_news = []
+            
+            for news in news_list:
+                title = news['title'].strip()
+                link = news['link'].strip()
+                
+                # 제목과 링크로 중복 체크
+                title_lower = title.lower()
+                if title_lower not in seen_titles and link not in seen_links:
+                    seen_titles.add(title_lower)
+                    seen_links.add(link)
+                    unique_news.append(news)
+            
+            self.log_message(f"중복 제거: {len(news_list)}개 → {len(unique_news)}개")
+            return unique_news
+            
+        except Exception as e:
+            self.log_message(f"중복 제거 오류: {str(e)}")
+            return news_list
     
     def filter_high_view_news(self, news_list):
         """조회수 높은 뉴스 선별"""
