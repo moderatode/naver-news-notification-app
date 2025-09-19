@@ -140,7 +140,8 @@ class NewsAutomation:
         self.stop_button = ttk.Button(control_frame, text="중지", command=self.stop_scheduler, state="disabled")
         self.stop_button.pack(side=tk.LEFT, padx=(0, 10))
         
-        ttk.Button(control_frame, text="테스트 전송", command=self.test_send).pack(side=tk.LEFT)
+        ttk.Button(control_frame, text="테스트 전송", command=self.test_send).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(control_frame, text="뉴스 테스트", command=self.test_news).pack(side=tk.LEFT)
         
         # 로그
         log_frame = ttk.LabelFrame(main_frame, text="로그", padding="10")
@@ -251,8 +252,19 @@ class NewsAutomation:
                 "X-Naver-Client-Secret": self.naver_secret
             }
             
+            # 현재 시간대별 인기 키워드
+            current_hour = datetime.now().hour
+            if 6 <= current_hour < 12:
+                query = "정치 경제 사회 아침뉴스"
+            elif 12 <= current_hour < 18:
+                query = "경제 사회 정치 오후뉴스"
+            elif 18 <= current_hour < 22:
+                query = "정치 사회 경제 저녁뉴스"
+            else:
+                query = "뉴스 정치 경제 사회"
+            
             params = {
-                "query": "뉴스",
+                "query": query,
                 "display": int(self.count_var.get()),
                 "sort": "date" if self.sort_var.get() == "최신" else "sim"
             }
@@ -268,16 +280,22 @@ class NewsAutomation:
                     title = item.get("title", "").replace("<b>", "").replace("</b>", "")
                     description = item.get("description", "").replace("<b>", "").replace("</b>", "")
                     link = item.get("link", "")
+                    pub_date = item.get("pubDate", "")
                     
                     news_list.append({
                         "title": title,
                         "description": description,
-                        "link": link
+                        "link": link,
+                        "pub_date": pub_date
                     })
                 
                 return news_list
             else:
                 self.log_message(f"뉴스 API 오류: {response.status_code}")
+                if response.status_code == 401:
+                    self.log_message("API 키가 올바르지 않습니다.")
+                elif response.status_code == 403:
+                    self.log_message("API 사용량이 초과되었습니다.")
                 return []
                 
         except Exception as e:
@@ -422,6 +440,53 @@ class NewsAutomation:
                 messagebox.showerror("실패", "테스트 전송에 실패했습니다.")
         except Exception as e:
             self.log_message(f"테스트 전송 오류: {str(e)}")
+    
+    def test_news(self):
+        """뉴스 수집 테스트"""
+        if not self.naver_id or not self.naver_secret:
+            messagebox.showwarning("경고", "먼저 API 키를 설정해주세요.")
+            return
+        
+        try:
+            self.log_message("🔥 뉴스 수집 테스트 시작...")
+            
+            # 뉴스 가져오기
+            news_list = self.get_news()
+            
+            if not news_list:
+                self.log_message("❌ 뉴스를 가져올 수 없습니다.")
+                messagebox.showwarning("경고", "뉴스를 가져올 수 없습니다. API 키를 확인해주세요.")
+                return
+            
+            self.log_message(f"✅ {len(news_list)}개의 뉴스를 가져왔습니다.")
+            self.log_message("=" * 50)
+            
+            # 뉴스 상세 정보 표시
+            for i, news in enumerate(news_list, 1):
+                self.log_message(f"{i}. {news['title']}")
+                if news['description']:
+                    self.log_message(f"   📝 {news['description'][:100]}...")
+                if news['link']:
+                    self.log_message(f"   🔗 {news['link']}")
+                self.log_message("-" * 30)
+            
+            # 메시지 미리보기
+            message = "🔥 오늘의 핫 뉴스\n\n"
+            for i, news in enumerate(news_list[:5], 1):
+                message += f"{i}. {news['title']}\n"
+                if news['link']:
+                    message += f"   링크: {news['link']}\n"
+                message += "\n"
+            
+            self.log_message("📱 전송될 메시지 미리보기:")
+            self.log_message(message)
+            self.log_message("=" * 50)
+            
+            messagebox.showinfo("뉴스 테스트 완료", f"{len(news_list)}개의 뉴스를 성공적으로 가져왔습니다.\n로그를 확인해주세요.")
+            
+        except Exception as e:
+            self.log_message(f"❌ 뉴스 테스트 오류: {str(e)}")
+            messagebox.showerror("오류", f"뉴스 테스트 중 오류가 발생했습니다: {str(e)}")
     
     def run(self):
         """앱 실행"""
