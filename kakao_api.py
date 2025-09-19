@@ -336,7 +336,7 @@ class AuthCodeServer:
                             self.send_response(200)
                             self.send_header('Content-type', 'text/html; charset=utf-8')
                             self.end_headers()
-                            self.wfile.write(b'''
+                            html_content = '''
                             <html>
                             <head><title>인증 완료</title></head>
                             <body>
@@ -344,11 +344,12 @@ class AuthCodeServer:
                                 <p>이 창을 닫고 앱으로 돌아가세요.</p>
                             </body>
                             </html>
-                            ''')
+                            '''.encode('utf-8')
+                            self.wfile.write(html_content)
                         else:
                             self.send_response(400)
                             self.end_headers()
-                            self.wfile.write(b'인증 코드를 찾을 수 없습니다.')
+                            self.wfile.write('인증 코드를 찾을 수 없습니다.'.encode('utf-8'))
                     else:
                         self.send_response(404)
                         self.end_headers()
