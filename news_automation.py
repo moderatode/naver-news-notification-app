@@ -297,7 +297,11 @@ class NewsAutomation:
             webbrowser.open(auth_url_with_params)
             
             # 인증 코드 입력 받기
-            code = tk.simpledialog.askstring("인증 코드", "리다이렉트된 URL에서 'code=' 뒤의 인증 코드를 입력하세요:")
+            code = tk.simpledialog.askstring("인증 코드", 
+                "브라우저에서 로그인 후 리다이렉트된 URL을 확인하세요.\n\n"
+                "URL 예시: http://localhost:8080/callback?code=ABC123...\n"
+                "이 URL에서 'code=' 뒤의 긴 문자열을 복사하여 아래에 붙여넣으세요:\n\n"
+                "인증 코드:")
             
             if code:
                 # 토큰 요청
