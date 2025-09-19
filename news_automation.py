@@ -23,14 +23,14 @@ class NewsAutomation:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("📰 네이버 뉴스 자동화")
-        self.root.geometry("650x550")
+        self.root.geometry("600x500")
         self.root.resizable(True, True)
         
         # 화면 중앙에 배치
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (650 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (550 // 2)
-        self.root.geometry(f"650x550+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - (600 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (500 // 2)
+        self.root.geometry(f"600x500+{x}+{y}")
         
         # API 키
         self.naver_id = ""
@@ -82,16 +82,16 @@ class NewsAutomation:
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
         
         # 제목
-        title_label = ttk.Label(main_frame, text="네이버 뉴스 자동화", font=("Arial", 16, "bold"))
+        title_label = ttk.Label(main_frame, text="📰 네이버 뉴스 자동화", font=("Arial", 16, "bold"))
         title_label.pack(pady=(0, 20))
         
         # API 키 설정 버튼
         key_frame = ttk.Frame(main_frame)
         key_frame.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Button(key_frame, text="API 키 설정", command=self.open_key_setup).pack(side=tk.LEFT)
+        ttk.Button(key_frame, text="API 키 설정", command=self.open_key_setup).pack(side=tk.LEFT, padx=(0, 10))
         self.key_status_label = ttk.Label(key_frame, text="API 키 미설정", foreground="red")
-        self.key_status_label.pack(side=tk.RIGHT)
+        self.key_status_label.pack(side=tk.LEFT)
         
         # 카카오 인증
         auth_frame = ttk.Frame(main_frame)

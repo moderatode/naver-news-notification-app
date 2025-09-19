@@ -13,14 +13,14 @@ class KeySetupGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("🔑 API 키 설정")
-        self.root.geometry("550x450")
+        self.root.geometry("500x400")
         self.root.resizable(True, True)
         
         # 화면 중앙에 배치
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (550 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (450 // 2)
-        self.root.geometry(f"550x450+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - (500 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (400 // 2)
+        self.root.geometry(f"500x400+{x}+{y}")
         
         # 키 파일 경로
         self.keys_file = "keys.txt"
@@ -57,7 +57,7 @@ class KeySetupGUI:
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
         
         # 제목
-        title_label = ttk.Label(main_frame, text="API 키 설정", font=("Arial", 16, "bold"))
+        title_label = ttk.Label(main_frame, text="🔑 API 키 설정", font=("Arial", 16, "bold"))
         title_label.pack(pady=(0, 20))
         
         # 네이버 API 키 섹션
