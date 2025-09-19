@@ -1,11 +1,11 @@
-# 네이버 뉴스 자동화 앱 (단순 버전)
+# Naver News Notification App
 
-네이버 뉴스에서 핫한 뉴스를 가져와 카카오톡으로 전송하는 간단한 자동화 앱입니다.
+네이버 뉴스에서 핫한 뉴스를 가져와 카카오톡으로 전송하는 간단한 알림 앱입니다.
 
 ## 파일 구조
 
 ```
-naver_news_automation/
+naver-news-notification-app/
 ├── key_setup.py          # API 키 설정 GUI
 ├── run.py               # 메인 알림 어플리케이션
 ├── keys.txt             # API 키 저장 파일 (GitHub에는 빈 값으로 업로드)
