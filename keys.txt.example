@@ -1,8 +1,0 @@
-# 네이버 뉴스 검색 API 키
-# https://developers.naver.com/apps/#/myapps 에서 발급받으세요
-NAVER_ID=your_naver_client_id_here
-NAVER_SECRET=your_naver_client_secret_here
-
-# 카카오톡 "나에게 보내기" API 키  
-# https://developers.kakao.com/console/app 에서 발급받으세요
-KAKAO_KEY=your_kakao_rest_api_key_here

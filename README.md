@@ -8,10 +8,8 @@
 naver_news_automation/
 ├── key_setup.py          # API 키 설정 GUI
 ├── news_automation.py    # 메인 자동화 앱
-├── keys.txt             # API 키 저장 파일 (자동 생성)
-├── kakao_token.txt      # 카카오 토큰 저장 파일 (자동 생성)
-├── keys.txt.example     # API 키 예시 파일
-├── kakao_token.txt.example # 카카오 토큰 예시 파일
+├── keys.txt             # API 키 저장 파일 (GitHub에는 빈 값으로 업로드)
+├── kakao_token.txt      # 카카오 토큰 저장 파일 (GitHub에는 빈 값으로 업로드)
 ├── requirements.txt     # 필요한 패키지
 ├── .gitignore          # Git 제외 파일 목록
 └── README.md           # 사용법
@@ -20,13 +18,6 @@ naver_news_automation/
 ## 초기 설정
 
 ### 1. 저장소 클론 후
-```bash
-# 예시 파일을 실제 파일로 복사
-cp keys.txt.example keys.txt
-cp kakao_token.txt.example kakao_token.txt
-```
-
-### 2. API 키 설정
 - `keys.txt` 파일을 열어서 실제 API 키 입력
 - 또는 `python key_setup.py`로 GUI에서 설정
 
