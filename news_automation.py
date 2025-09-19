@@ -108,7 +108,7 @@ class NewsAutomation:
         
         ttk.Label(news_frame, text="개수:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
         self.count_var = tk.StringVar(value="5")
-        ttk.Spinbox(news_frame, from_=1, to=20, textvariable=self.count_var, width=5).grid(row=0, column=1, padx=(0, 20))
+        ttk.Spinbox(news_frame, from_=1, to=5, textvariable=self.count_var, width=5).grid(row=0, column=1, padx=(0, 20))
         
         ttk.Label(news_frame, text="정렬:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
         self.sort_var = tk.StringVar(value="최신")
