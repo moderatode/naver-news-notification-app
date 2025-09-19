@@ -267,7 +267,10 @@ class NewsAutomation:
         """API 키 설정 창 열기"""
         import subprocess
         import sys
-        subprocess.Popen([sys.executable, "key_setup.py"], cwd="src")
+        import os
+        # 현재 파일의 디렉토리 (src/)를 절대 경로로 사용
+        src_dir = os.path.dirname(os.path.abspath(__file__))
+        subprocess.Popen([sys.executable, "key_setup.py"], cwd=src_dir)
         self.load_keys()  # 키 다시 로드
     
     def log_message(self, message):
