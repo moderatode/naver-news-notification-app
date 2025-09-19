@@ -141,7 +141,8 @@ class NewsAutomation:
         self.stop_button.pack(side=tk.LEFT, padx=(0, 10))
         
         ttk.Button(control_frame, text="테스트 전송", command=self.test_send).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(control_frame, text="뉴스 테스트", command=self.test_news).pack(side=tk.LEFT)
+        ttk.Button(control_frame, text="뉴스 테스트", command=self.test_news).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(control_frame, text="뉴스 전송 테스트", command=self.test_news_send).pack(side=tk.LEFT)
         
         # 로그
         log_frame = ttk.LabelFrame(main_frame, text="로그", padding="10")
@@ -487,6 +488,50 @@ class NewsAutomation:
         except Exception as e:
             self.log_message(f"❌ 뉴스 테스트 오류: {str(e)}")
             messagebox.showerror("오류", f"뉴스 테스트 중 오류가 발생했습니다: {str(e)}")
+    
+    def test_news_send(self):
+        """뉴스 수집 및 카카오톡 전송 테스트"""
+        if not self.naver_id or not self.naver_secret:
+            messagebox.showwarning("경고", "먼저 API 키를 설정해주세요.")
+            return
+        
+        if not self.access_token:
+            messagebox.showwarning("경고", "먼저 카카오톡 인증을 완료해주세요.")
+            return
+        
+        try:
+            self.log_message("🔥 뉴스 수집 및 전송 테스트 시작...")
+            
+            # 뉴스 가져오기
+            news_list = self.get_news()
+            
+            if not news_list:
+                self.log_message("❌ 뉴스를 가져올 수 없습니다.")
+                messagebox.showwarning("경고", "뉴스를 가져올 수 없습니다. API 키를 확인해주세요.")
+                return
+            
+            self.log_message(f"✅ {len(news_list)}개의 뉴스를 가져왔습니다.")
+            
+            # 메시지 구성
+            message = "🔥 오늘의 핫 뉴스\n\n"
+            for i, news in enumerate(news_list[:5], 1):
+                message += f"{i}. {news['title']}\n"
+                if news['link']:
+                    message += f"   링크: {news['link']}\n"
+                message += "\n"
+            
+            # 카카오톡으로 전송
+            self.log_message("📱 카카오톡으로 전송 중...")
+            if self.send_to_kakao(message):
+                self.log_message("✅ 뉴스 전송 성공!")
+                messagebox.showinfo("성공", "뉴스가 카카오톡으로 전송되었습니다!\n폰에서 알림을 확인해주세요.")
+            else:
+                self.log_message("❌ 뉴스 전송 실패")
+                messagebox.showerror("실패", "뉴스 전송에 실패했습니다.")
+                
+        except Exception as e:
+            self.log_message(f"❌ 뉴스 전송 테스트 오류: {str(e)}")
+            messagebox.showerror("오류", f"뉴스 전송 테스트 중 오류가 발생했습니다: {str(e)}")
     
     def run(self):
         """앱 실행"""
