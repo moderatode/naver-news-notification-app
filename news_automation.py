@@ -421,7 +421,7 @@ class NewsAutomation:
                     seen_links.add(link)
                     unique_news.append(news)
             
-            self.log_message(f"중복 제거: {len(news_list)}개 → {len(unique_news)}개")
+            # self.log_message(f"중복 제거: {len(news_list)}개 → {len(unique_news)}개")  # 사용자에게 숨김
             return unique_news
             
         except Exception as e:
@@ -445,7 +445,8 @@ class NewsAutomation:
                     removed_count += 1
             
             if removed_count > 0:
-                self.log_message(f"전송된 뉴스 제거: {removed_count}개")
+                # self.log_message(f"전송된 뉴스 제거: {removed_count}개")  # 사용자에게 숨김
+                pass
             
             # 요청한 개수만큼 반환 (부족하면 있는 만큼만)
             return new_news[:requested_count]
@@ -615,6 +616,20 @@ class NewsAutomation:
                     hour, minute = map(int, time_str.split(":"))
                     schedule.every().day.at(f"{hour:02d}:{minute:02d}").do(self.send_news_job)
                 self.log_message(f"알람 모드 시작: {', '.join(times)}")
+                
+                # 알람모드 자동 중지 스케줄 추가 (마지막 시간 + 1분 후)
+                if times:
+                    last_time = max(times, key=lambda x: (int(x.split(':')[0]), int(x.split(':')[1])))
+                    last_hour, last_minute = map(int, last_time.split(":"))
+                    # 마지막 시간 + 1분 후에 자동 중지
+                    if last_minute == 59:
+                        auto_stop_hour = (last_hour + 1) % 24
+                        auto_stop_minute = 0
+                    else:
+                        auto_stop_hour = last_hour
+                        auto_stop_minute = last_minute + 1
+                    
+                    schedule.every().day.at(f"{auto_stop_hour:02d}:{auto_stop_minute:02d}").do(self.auto_stop_alarm)
             
             # 스케줄러 스레드 시작
             self.scheduler_thread = threading.Thread(target=self.run_scheduler, daemon=True)
@@ -632,6 +647,12 @@ class NewsAutomation:
         self.start_button.config(state="normal")
         self.stop_button.config(state="disabled")
         self.log_message("스케줄러 중지됨")
+    
+    def auto_stop_alarm(self):
+        """알람모드 자동 중지"""
+        if self.mode_var.get() == "alarm":
+            self.log_message("알람모드 자동 중지: 모든 시간 완료")
+            self.stop_scheduler()
     
     def run_scheduler(self):
         """스케줄러 실행 루프"""
