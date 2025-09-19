@@ -51,6 +51,7 @@ class NewsAutomation:
         self.setup_ui()
         self.load_keys()
         self.on_sort_change()  # 초기 상태 설정
+        self.on_mode_change()  # 초기 모드 설정
         
     def setup_ui(self):
         """GUI 설정"""
@@ -130,23 +131,27 @@ class NewsAutomation:
         
         # 간격 모드
         self.mode_var = tk.StringVar(value="interval")
-        ttk.Radiobutton(schedule_frame, text="간격 모드", variable=self.mode_var, value="interval").grid(row=0, column=0, sticky=tk.W)
-        ttk.Radiobutton(schedule_frame, text="알람 모드", variable=self.mode_var, value="alarm").grid(row=0, column=1, sticky=tk.W, padx=(20, 0))
+        ttk.Radiobutton(schedule_frame, text="간격 모드", variable=self.mode_var, value="interval", command=self.on_mode_change).grid(row=0, column=0, sticky=tk.W)
+        ttk.Radiobutton(schedule_frame, text="알람 모드", variable=self.mode_var, value="alarm", command=self.on_mode_change).grid(row=0, column=1, sticky=tk.W, padx=(20, 0))
         
         # 간격 설정
-        ttk.Label(schedule_frame, text="간격(시간):").grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
+        self.interval_label = ttk.Label(schedule_frame, text="간격(시간):")
+        self.interval_label.grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
         self.interval_var = tk.StringVar(value="1")
-        ttk.Spinbox(schedule_frame, from_=1, to=24, textvariable=self.interval_var, width=5).grid(row=1, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        self.interval_spinbox = ttk.Spinbox(schedule_frame, from_=1, to=24, textvariable=self.interval_var, width=5)
+        self.interval_spinbox.grid(row=1, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
         
         # 알람 설정
-        ttk.Label(schedule_frame, text="시간(예: 08:30,12:00,18:00):").grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
+        self.alarm_label = ttk.Label(schedule_frame, text="시간(예: 08:30,12:00,18:00):")
+        self.alarm_label.grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
         self.alarm_var = tk.StringVar(value="08:30,12:00,18:00")
-        ttk.Entry(schedule_frame, textvariable=self.alarm_var, width=30).grid(row=2, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        self.alarm_entry = ttk.Entry(schedule_frame, textvariable=self.alarm_var, width=30)
+        self.alarm_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
         
         # 알람 모드 설명
-        alarm_info = ttk.Label(schedule_frame, text="※ 알람 모드: 지정된 시간에만 실행 (예: 08:30, 12:00, 18:00)", 
-                              font=("Arial", 8), foreground="gray")
-        alarm_info.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
+        self.alarm_info = ttk.Label(schedule_frame, text="※ 알람 모드: 지정된 시간에만 실행 (예: 08:30, 12:00, 18:00)", 
+                                   font=("Arial", 8), foreground="gray")
+        self.alarm_info.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
         
         # 제어 버튼
         control_frame = ttk.Frame(main_frame)
@@ -199,6 +204,23 @@ class NewsAutomation:
         else:
             # 키워드 입력 칸 숨김
             self.keyword_entry.grid_remove()
+    
+    def on_mode_change(self):
+        """스케줄 모드 변경 시 UI 업데이트"""
+        if self.mode_var.get() == "interval":
+            # 간격 모드: 간격 설정만 표시, 알람 설정 숨김
+            self.interval_label.grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
+            self.interval_spinbox.grid(row=1, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+            self.alarm_label.grid_remove()
+            self.alarm_entry.grid_remove()
+            self.alarm_info.grid_remove()
+        else:
+            # 알람 모드: 알람 설정만 표시, 간격 설정 숨김
+            self.interval_label.grid_remove()
+            self.interval_spinbox.grid_remove()
+            self.alarm_label.grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
+            self.alarm_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+            self.alarm_info.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
     
     def open_key_setup(self):
         """API 키 설정 창 열기"""
@@ -327,11 +349,14 @@ class NewsAutomation:
                         "pub_date": pub_date
                     })
                 
-                # 중복 제거
-                news_list = self.remove_duplicates(news_list)
-                
-                # 요청한 개수만큼만 반환
-                return news_list[:int(self.count_var.get())]
+            # 중복 제거 (같은 뉴스)
+            news_list = self.remove_duplicates(news_list)
+            
+            # 전송된 뉴스 제거 (이전에 보낸 뉴스)
+            news_list = self.remove_sent_news(news_list)
+            
+            # 요청한 개수만큼만 반환
+            return news_list[:int(self.count_var.get())]
             else:
                 self.log_message(f"뉴스 API 오류: {response.status_code}")
                 if response.status_code == 401:
@@ -367,6 +392,31 @@ class NewsAutomation:
             
         except Exception as e:
             self.log_message(f"중복 제거 오류: {str(e)}")
+            return news_list
+    
+    def remove_sent_news(self, news_list):
+        """이전에 전송된 뉴스 제거"""
+        try:
+            new_news = []
+            removed_count = 0
+            
+            for news in news_list:
+                link = news['link'].strip()
+                title = news['title'].strip()
+                
+                # 전송된 뉴스인지 확인
+                if link not in self.sent_urls:
+                    new_news.append(news)
+                else:
+                    removed_count += 1
+            
+            if removed_count > 0:
+                self.log_message(f"전송된 뉴스 제거: {removed_count}개")
+            
+            return new_news
+            
+        except Exception as e:
+            self.log_message(f"전송된 뉴스 제거 오류: {str(e)}")
             return news_list
     
     def filter_high_view_news(self, news_list):
