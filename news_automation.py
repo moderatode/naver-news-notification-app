@@ -135,10 +135,10 @@ class NewsAutomation:
         ttk.Radiobutton(schedule_frame, text="알람 모드", variable=self.mode_var, value="alarm", command=self.on_mode_change).grid(row=0, column=1, sticky=tk.W, padx=(20, 0))
         
         # 간격 설정
-        self.interval_label = ttk.Label(schedule_frame, text="간격(시간):")
+        self.interval_label = ttk.Label(schedule_frame, text="간격(분):")
         self.interval_label.grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
-        self.interval_var = tk.StringVar(value="1")
-        self.interval_spinbox = ttk.Spinbox(schedule_frame, from_=1, to=24, textvariable=self.interval_var, width=5)
+        self.interval_var = tk.StringVar(value="60")
+        self.interval_spinbox = ttk.Spinbox(schedule_frame, from_=1, to=1440, textvariable=self.interval_var, width=5)
         self.interval_spinbox.grid(row=1, column=1, sticky=tk.W, padx=(5, 0), pady=(10, 0))
         
         # 알람 설정
@@ -327,7 +327,8 @@ class NewsAutomation:
             
             # 충분한 개수를 가져오기 위해 더 많이 요청
             requested_count = int(self.count_var.get())
-            fetch_count = max(requested_count * 5, 50)  # 최소 50개, 요청 개수의 5배
+            # 전송된 뉴스가 많을 수 있으므로 더 많이 가져오기
+            fetch_count = max(requested_count * 10, 100)  # 최소 100개, 요청 개수의 10배
             
             params = {
                 "query": query,
@@ -359,10 +360,11 @@ class NewsAutomation:
                 news_list = self.remove_duplicates(news_list)
                 
                 # 전송된 뉴스 제거 (이전에 보낸 뉴스)
-                news_list = self.remove_sent_news(news_list)
+                requested_count = int(self.count_var.get())
+                news_list = self.remove_sent_news(news_list, requested_count)
                 
                 # 요청한 개수만큼만 반환
-                return news_list[:int(self.count_var.get())]
+                return news_list[:requested_count]
             else:
                 self.log_message(f"뉴스 API 오류: {response.status_code}")
                 if response.status_code == 401:
@@ -400,7 +402,7 @@ class NewsAutomation:
             self.log_message(f"중복 제거 오류: {str(e)}")
             return news_list
     
-    def remove_sent_news(self, news_list):
+    def remove_sent_news(self, news_list, requested_count):
         """이전에 전송된 뉴스 제거"""
         try:
             new_news = []
@@ -413,6 +415,9 @@ class NewsAutomation:
                 # 전송된 뉴스인지 확인
                 if link not in self.sent_urls:
                     new_news.append(news)
+                    # 요청한 개수만큼 모이면 중단
+                    if len(new_news) >= requested_count:
+                        break
                 else:
                     removed_count += 1
             
@@ -570,10 +575,15 @@ class NewsAutomation:
             schedule.clear()
             
             if self.mode_var.get() == "interval":
-                # 간격 모드
+                # 간격 모드 (분 단위)
                 interval = int(self.interval_var.get())
-                schedule.every(interval).hours.do(self.send_news_job)
-                self.log_message(f"간격 모드 시작: {interval}시간마다")
+                schedule.every(interval).minutes.do(self.send_news_job)
+                self.log_message(f"간격 모드 시작: {interval}분마다")
+                
+                # 즉시 첫 뉴스 전송
+                self.log_message("첫 뉴스 전송 중...")
+                self.send_news_job()
+                
             else:
                 # 알람 모드
                 times = [t.strip() for t in self.alarm_var.get().split(",")]
