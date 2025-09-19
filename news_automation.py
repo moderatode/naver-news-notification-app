@@ -349,14 +349,14 @@ class NewsAutomation:
                         "pub_date": pub_date
                     })
                 
-            # 중복 제거 (같은 뉴스)
-            news_list = self.remove_duplicates(news_list)
-            
-            # 전송된 뉴스 제거 (이전에 보낸 뉴스)
-            news_list = self.remove_sent_news(news_list)
-            
-            # 요청한 개수만큼만 반환
-            return news_list[:int(self.count_var.get())]
+                # 중복 제거 (같은 뉴스)
+                news_list = self.remove_duplicates(news_list)
+                
+                # 전송된 뉴스 제거 (이전에 보낸 뉴스)
+                news_list = self.remove_sent_news(news_list)
+                
+                # 요청한 개수만큼만 반환
+                return news_list[:int(self.count_var.get())]
             else:
                 self.log_message(f"뉴스 API 오류: {response.status_code}")
                 if response.status_code == 401:
