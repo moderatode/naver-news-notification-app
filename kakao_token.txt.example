@@ -1,0 +1,4 @@
+# 카카오톡 인증 토큰 (자동 생성됨)
+# 이 파일은 카카오톡 인증 후 자동으로 생성됩니다
+ACCESS_TOKEN=your_access_token_here
+REFRESH_TOKEN=your_refresh_token_here

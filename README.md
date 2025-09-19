@@ -2,16 +2,34 @@
 
 네이버 뉴스에서 핫한 뉴스를 가져와 카카오톡으로 전송하는 간단한 자동화 앱입니다.
 
-## 파일 구조 (최소화)
+## 파일 구조
 
 ```
 naver_news_automation/
 ├── key_setup.py          # API 키 설정 GUI
 ├── news_automation.py    # 메인 자동화 앱
-├── keys.txt             # API 키 저장 파일 (자동 생성)
-├── kakao_token.txt      # 카카오 토큰 저장 파일 (자동 생성)
+├── keys.txt.example     # API 키 예시 파일
+├── kakao_token.txt.example # 카카오 토큰 예시 파일
 ├── requirements.txt     # 필요한 패키지
+├── .gitignore          # Git 제외 파일 목록
 └── README.md           # 사용법
+```
+
+## 초기 설정
+
+### 1. API 키 파일 생성
+```bash
+# 예시 파일을 복사해서 실제 파일 생성
+cp keys.txt.example keys.txt
+cp kakao_token.txt.example kakao_token.txt
+```
+
+### 2. API 키 입력
+`keys.txt` 파일을 열어서 실제 API 키로 수정:
+```
+NAVER_ID=실제_네이버_클라이언트_ID
+NAVER_SECRET=실제_네이버_클라이언트_시크릿
+KAKAO_KEY=실제_카카오_REST_API_키
 ```
 
 ## 사용법

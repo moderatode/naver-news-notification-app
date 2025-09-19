@@ -1,0 +1,22 @@
+{
+  "count": 5,
+  "sort": "최신",
+  "schedule_mode": "interval",
+  "interval": 1,
+  "alarm_times": "08:30,12:00,18:00",
+  "weekdays": {
+    "월": true,
+    "화": true,
+    "수": true,
+    "목": true,
+    "금": true,
+    "토": false,
+    "일": false
+  },
+  "naver_client_id": "",
+  "naver_client_secret": "",
+  "kakao_client_id": "",
+  "auto_start": false,
+  "minimize_to_tray": true,
+  "log_level": "INFO"
+}
