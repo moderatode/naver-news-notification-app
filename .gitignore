@@ -1,6 +1,6 @@
-# 개인 API 키 파일들 (실제 키 값은 Git에 올리지 않음)
-keys.txt
-kakao_token.txt
+# 개인 API 키 파일들 (빈 값으로 업로드하여 사용자가 직접 입력)
+# keys.txt - 빈 값으로 업로드
+# kakao_token.txt - 빈 값으로 업로드
 
 # Python 캐시 파일들
 __pycache__/
