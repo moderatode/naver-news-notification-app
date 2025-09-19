@@ -50,6 +50,7 @@ class NewsAutomation:
         
         self.setup_ui()
         self.load_keys()
+        self.load_kakao_token()  # 카카오톡 토큰 로드
         self.on_sort_change()  # 초기 상태 설정
         self.on_mode_change()  # 초기 모드 설정
         
@@ -200,6 +201,28 @@ class NewsAutomation:
                 self.key_status_label.config(text="API 키 미설정", foreground="red")
         except Exception as e:
             self.log_message(f"키 로드 오류: {str(e)}")
+    
+    def load_kakao_token(self):
+        """카카오톡 토큰 로드"""
+        try:
+            if os.path.exists("kakao_token.txt"):
+                with open("kakao_token.txt", 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if line.startswith('ACCESS_TOKEN='):
+                            self.access_token = line.split('=', 1)[1].strip()
+                        elif line.startswith('REFRESH_TOKEN='):
+                            self.refresh_token = line.split('=', 1)[1].strip()
+                
+                if self.access_token:
+                    self.auth_status_label.config(text="인증 완료", foreground="green")
+                    self.log_message("카카오톡 토큰 로드됨")
+                else:
+                    self.auth_status_label.config(text="인증 필요", foreground="red")
+            else:
+                self.auth_status_label.config(text="인증 필요", foreground="red")
+        except Exception as e:
+            self.log_message(f"토큰 로드 오류: {str(e)}")
+            self.auth_status_label.config(text="인증 필요", foreground="red")
     
     def on_sort_change(self, event=None):
         """정렬 방식 변경 시 키워드 입력 칸 표시/숨김"""
