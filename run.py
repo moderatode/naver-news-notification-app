@@ -23,7 +23,7 @@ import html
 class NewsAutomation:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("📰 네이버 뉴스 자동화")
+        self.root.title("📰 네이버 뉴스 알림 어플리케이션")
         self.root.geometry("600x500")
         self.root.resizable(True, True)
         
@@ -84,7 +84,7 @@ class NewsAutomation:
         canvas.bind_all("<MouseWheel>", _on_mousewheel)
         
         # 제목
-        title_label = ttk.Label(main_frame, text="📰 네이버 뉴스 자동화", font=("Arial", 16, "bold"))
+        title_label = ttk.Label(main_frame, text="📰 네이버 뉴스 알림 어플리케이션", font=("Arial", 16, "bold"))
         title_label.pack(pady=(0, 20))
         
         # API 키 설정 버튼

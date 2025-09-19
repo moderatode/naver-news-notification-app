@@ -7,7 +7,7 @@
 ```
 naver_news_automation/
 ├── key_setup.py          # API 키 설정 GUI
-├── news_automation.py    # 메인 자동화 앱
+├── run.py               # 메인 알림 어플리케이션
 ├── keys.txt             # API 키 저장 파일 (GitHub에는 빈 값으로 업로드)
 ├── kakao_token.txt      # 카카오 토큰 저장 파일 (GitHub에는 빈 값으로 업로드)
 ├── requirements.txt     # 필요한 패키지
@@ -38,7 +38,7 @@ python key_setup.py
 
 ### 3. 앱 실행
 ```bash
-python news_automation.py
+python run.py
 ```
 
 ### 4. 사용 순서
