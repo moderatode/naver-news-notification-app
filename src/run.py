@@ -49,6 +49,9 @@ class NewsAutomation:
         # 캐시 (간단한 리스트)
         self.sent_urls = []
         
+        # config 폴더가 없으면 생성
+        os.makedirs("config", exist_ok=True)
+        
         self.setup_ui()
         self.load_keys()
         self.load_kakao_token()  # 카카오톡 토큰 로드
@@ -180,10 +183,10 @@ class NewsAutomation:
         self.log_text.pack(fill=tk.BOTH, expand=True)
         
     def load_keys(self):
-        """keys.txt에서 API 키 로드"""
+        """config/keys.txt에서 API 키 로드"""
         try:
-            if os.path.exists("keys.txt"):
-                with open("keys.txt", 'r', encoding='utf-8') as f:
+            if os.path.exists("config/keys.txt"):
+                with open("config/keys.txt", 'r', encoding='utf-8') as f:
                     for line in f:
                         if line.startswith('NAVER_ID='):
                             self.naver_id = line.split('=', 1)[1].strip()
@@ -204,8 +207,8 @@ class NewsAutomation:
     def load_kakao_token(self):
         """카카오톡 토큰 로드"""
         try:
-            if os.path.exists("kakao_token.txt"):
-                with open("kakao_token.txt", 'r', encoding='utf-8') as f:
+            if os.path.exists("config/kakao_token.txt"):
+                with open("config/kakao_token.txt", 'r', encoding='utf-8') as f:
                     for line in f:
                         if line.startswith('ACCESS_TOKEN='):
                             self.access_token = line.split('=', 1)[1].strip()
@@ -321,7 +324,7 @@ class NewsAutomation:
                     self.refresh_token = token_data.get('refresh_token')
                     
                     # 토큰 저장
-                    with open("kakao_token.txt", 'w', encoding='utf-8') as f:
+                    with open("config/kakao_token.txt", 'w', encoding='utf-8') as f:
                         f.write(f"ACCESS_TOKEN={self.access_token}\n")
                         f.write(f"REFRESH_TOKEN={self.refresh_token}\n")
                     

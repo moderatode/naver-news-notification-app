@@ -6,20 +6,22 @@
 
 ```
 naver-news-notification-app/
-├── key_setup.py          # API 키 설정 GUI
-├── run.py               # 메인 알림 어플리케이션
-├── keys.txt             # API 키 저장 파일 (GitHub에는 빈 값으로 업로드)
-├── kakao_token.txt      # 카카오 토큰 저장 파일 (GitHub에는 빈 값으로 업로드)
-├── requirements.txt     # 필요한 패키지
-├── .gitignore          # Git 제외 파일 목록
-└── README.md           # 사용법
+├── src/                    # 소스 코드
+│   ├── run.py             # 메인 알림 어플리케이션
+│   └── key_setup.py       # API 키 설정 GUI
+├── config/                 # 설정 파일들
+│   ├── keys.txt           # API 키 저장 파일 (GitHub에는 빈 값으로 업로드)
+│   └── kakao_token.txt    # 카카오 토큰 저장 파일 (GitHub에는 빈 값으로 업로드)
+├── requirements.txt       # 필요한 패키지
+├── .gitignore            # Git 제외 파일 목록
+└── README.md             # 사용법
 ```
 
 ## 초기 설정
 
 ### 1. 저장소 클론 후
-- `keys.txt` 파일을 열어서 실제 API 키 입력
-- 또는 `python key_setup.py`로 GUI에서 설정
+- `config/keys.txt` 파일을 열어서 실제 API 키 입력
+- 또는 `python src/key_setup.py`로 GUI에서 설정
 
 ## 사용법
 
@@ -38,7 +40,7 @@ python key_setup.py
 
 ### 3. 앱 실행
 ```bash
-python run.py
+python src/run.py
 ```
 
 ### 4. 사용 순서

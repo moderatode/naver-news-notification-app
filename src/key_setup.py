@@ -23,7 +23,10 @@ class KeySetupGUI:
         self.root.geometry(f"450x400+{x}+{y}")
         
         # 키 파일 경로
-        self.keys_file = "keys.txt"
+        self.keys_file = "config/keys.txt"
+        
+        # config 폴더가 없으면 생성
+        os.makedirs("config", exist_ok=True)
         
         self.setup_ui()
         self.load_existing_keys()
