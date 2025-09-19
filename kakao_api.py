@@ -103,6 +103,12 @@ class KakaoAPI:
             인증 성공 여부
         """
         try:
+            # API 키 확인
+            if not self.client_id or self.client_id == "YOUR_KAKAO_CLIENT_ID":
+                print("❌ 카카오 API 키가 설정되지 않았습니다.")
+                print("api_keys.py 파일에서 KAKAO_CLIENT_ID를 설정해주세요.")
+                return False
+            
             # 1단계: 인증 코드 요청
             auth_url = f"{self.base_url}/oauth/authorize"
             params = {
@@ -114,28 +120,40 @@ class KakaoAPI:
             
             auth_url_with_params = f"{auth_url}?{urllib.parse.urlencode(params)}"
             
-            print("카카오 인증을 위해 브라우저가 열립니다...")
+            print("🔑 카카오 인증을 시작합니다...")
             print(f"인증 URL: {auth_url_with_params}")
+            print("\n⚠️  중요: 카카오 개발자센터에서 다음 설정을 확인해주세요:")
+            print("1. 플랫폼 설정: Web 플랫폼 추가")
+            print("2. 리다이렉트 URI: http://localhost:8080/callback")
+            print("3. 동의항목: 메시지 전송 권한 활성화")
+            print("\n브라우저가 열리면 카카오 계정으로 로그인하세요...")
             
             # 브라우저 열기
             webbrowser.open(auth_url_with_params)
             
             # 사용자로부터 인증 코드 입력 받기
-            print("\n브라우저에서 카카오 계정으로 로그인하고, 인증을 완료한 후")
-            print("리다이렉트된 URL에서 'code=' 뒤의 인증 코드를 복사해서 입력해주세요.")
-            print("예: http://localhost:8080/callback?code=인증코드")
+            print("\n" + "="*50)
+            print("인증 코드 입력")
+            print("="*50)
+            print("1. 브라우저에서 카카오 계정으로 로그인")
+            print("2. 권한 동의 후 리다이렉트된 URL 확인")
+            print("3. URL에서 'code=' 뒤의 인증 코드를 복사")
+            print("4. 아래에 인증 코드를 입력하세요")
+            print("\n예시 URL: http://localhost:8080/callback?code=인증코드")
+            print("="*50)
             
-            auth_code = input("인증 코드를 입력하세요: ").strip()
+            auth_code = input("\n인증 코드를 입력하세요: ").strip()
             
             if not auth_code:
-                print("인증 코드가 입력되지 않았습니다.")
+                print("❌ 인증 코드가 입력되지 않았습니다.")
                 return False
             
             # 2단계: 액세스 토큰 요청
+            print("🔄 액세스 토큰을 요청합니다...")
             return self._get_access_token(auth_code)
             
         except Exception as e:
-            print(f"인증 오류: {str(e)}")
+            print(f"❌ 인증 오류: {str(e)}")
             return False
     
     def _get_access_token(self, auth_code: str) -> bool:
@@ -149,6 +167,7 @@ class KakaoAPI:
                 'code': auth_code
             }
             
+            print("🔄 카카오 서버에 토큰을 요청합니다...")
             response = requests.post(url, data=data, timeout=10)
             
             if response.status_code == 200:
@@ -158,14 +177,28 @@ class KakaoAPI:
                 self.token_expires_at = time.time() + token_data.get('expires_in', 3600)
                 self._save_token()
                 
-                print("카카오 인증이 완료되었습니다!")
+                print("✅ 카카오 인증이 완료되었습니다!")
+                print("🎉 이제 뉴스 자동화를 사용할 수 있습니다.")
                 return True
             else:
-                print(f"토큰 획득 실패: {response.status_code} - {response.text}")
+                print(f"❌ 토큰 획득 실패: {response.status_code}")
+                print(f"오류 내용: {response.text}")
+                
+                # 상세한 오류 메시지 제공
+                if response.status_code == 400:
+                    print("\n💡 해결 방법:")
+                    print("1. 카카오 개발자센터에서 앱 설정 확인")
+                    print("2. 리다이렉트 URI가 정확한지 확인: http://localhost:8080/callback")
+                    print("3. 동의항목에서 '메시지 전송' 권한이 활성화되었는지 확인")
+                elif response.status_code == 401:
+                    print("\n💡 해결 방법:")
+                    print("1. API 키가 올바른지 확인")
+                    print("2. 앱이 활성화 상태인지 확인")
+                
                 return False
                 
         except Exception as e:
-            print(f"토큰 획득 오류: {str(e)}")
+            print(f"❌ 토큰 획득 오류: {str(e)}")
             return False
     
     def is_authenticated(self) -> bool:
