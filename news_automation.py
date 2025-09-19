@@ -18,6 +18,7 @@ import webbrowser
 import urllib.parse
 from datetime import datetime
 import os
+import html
 
 class NewsAutomation:
     def __init__(self):
@@ -222,6 +223,17 @@ class NewsAutomation:
             self.log_message(f"토큰 로드 오류: {str(e)}")
             self.auth_status_label.config(text="인증 필요", foreground="red")
     
+    def clean_html_entities(self, text):
+        """HTML 엔티티를 일반 문자로 변환"""
+        try:
+            # HTML 엔티티 디코딩
+            text = html.unescape(text)
+            # 추가적인 정리
+            text = text.replace("&quot;", '"').replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+            return text
+        except Exception:
+            return text
+    
     def on_sort_change(self, event=None):
         """정렬 방식 변경 시 키워드 입력 칸 표시/숨김"""
         if self.sort_var.get() == "관련도":
@@ -369,9 +381,13 @@ class NewsAutomation:
                 news_list = []
                 
                 for item in data.get("items", []):
-                    # HTML 태그 제거
+                    # HTML 태그 제거 및 엔티티 처리
                     title = item.get("title", "").replace("<b>", "").replace("</b>", "")
+                    title = self.clean_html_entities(title)
+                    
                     description = item.get("description", "").replace("<b>", "").replace("</b>", "")
+                    description = self.clean_html_entities(description)
+                    
                     link = item.get("link", "")
                     pub_date = item.get("pubDate", "")
                     
