@@ -13,14 +13,14 @@ class KeySetupGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("🔑 API 키 설정")
-        self.root.geometry("500x400")
+        self.root.geometry("450x400")
         self.root.resizable(True, True)
         
         # 화면 중앙에 배치
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (500 // 2)
+        x = (self.root.winfo_screenwidth() // 2) - (450 // 2)
         y = (self.root.winfo_screenheight() // 2) - (400 // 2)
-        self.root.geometry(f"500x400+{x}+{y}")
+        self.root.geometry(f"450x400+{x}+{y}")
         
         # 키 파일 경로
         self.keys_file = "keys.txt"

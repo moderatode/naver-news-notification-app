@@ -97,9 +97,9 @@ class NewsAutomation:
         auth_frame = ttk.Frame(main_frame)
         auth_frame.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Button(auth_frame, text="카카오톡 인증", command=self.authenticate_kakao).pack(side=tk.LEFT)
+        ttk.Button(auth_frame, text="카카오톡 인증", command=self.authenticate_kakao).pack(side=tk.LEFT, padx=(0, 10))
         self.auth_status_label = ttk.Label(auth_frame, text="인증 필요", foreground="red")
-        self.auth_status_label.pack(side=tk.RIGHT)
+        self.auth_status_label.pack(side=tk.LEFT)
         
         # 뉴스 설정
         news_frame = ttk.LabelFrame(main_frame, text="뉴스 설정", padding="10")
