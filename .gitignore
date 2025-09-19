@@ -1,38 +1,27 @@
-# 개인 API 키 파일들 (Git에 업로드하지 않음)
+# 개인 API 키 파일들 (실제 키 값은 Git에 올리지 않음)
 keys.txt
 kakao_token.txt
 
-# Python 관련
+# Python 캐시 파일들
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# IDE 관련
+# 배포 관련
+dist/
+build/
+*.egg-info/
+
+# IDE 설정 파일들
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS 관련
+# OS 생성 파일들
 .DS_Store
 Thumbs.db
 
-# 로그 파일
+# 로그 파일들
 *.log
