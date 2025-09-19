@@ -109,7 +109,7 @@ class NewsAutomation:
         
         ttk.Label(news_frame, text="정렬:").grid(row=0, column=2, sticky=tk.W, padx=(0, 5))
         self.sort_var = tk.StringVar(value="최신")
-        ttk.Combobox(news_frame, textvariable=self.sort_var, values=["최신", "관련도"], state="readonly", width=10).grid(row=0, column=3)
+        ttk.Combobox(news_frame, textvariable=self.sort_var, values=["최신", "관련도", "조회수"], state="readonly", width=10).grid(row=0, column=3)
         
         # 스케줄 설정
         schedule_frame = ttk.LabelFrame(main_frame, text="스케줄 설정", padding="10")
@@ -253,7 +253,7 @@ class NewsAutomation:
                 "X-Naver-Client-Secret": self.naver_secret
             }
             
-            # 현재 시간대별 인기 키워드
+            # 조회수 높은 뉴스를 위한 키워드 전략
             current_hour = datetime.now().hour
             if 6 <= current_hour < 12:
                 query = "정치 경제 사회 아침뉴스"
@@ -264,10 +264,17 @@ class NewsAutomation:
             else:
                 query = "뉴스 정치 경제 사회"
             
+            # 조회수 높은 뉴스를 위한 정렬 전략
+            sort_option = "sim"  # 관련도순이 조회수 높은 뉴스와 유사
+            if self.sort_var.get() == "최신":
+                sort_option = "date"
+            elif self.sort_var.get() == "조회수":
+                sort_option = "sim"  # 관련도순으로 대체
+            
             params = {
                 "query": query,
-                "display": int(self.count_var.get()),
-                "sort": "date" if self.sort_var.get() == "최신" else "sim"
+                "display": int(self.count_var.get()) * 2,  # 더 많이 가져와서 필터링
+                "sort": sort_option
             }
             
             response = requests.get(url, headers=headers, params=params)
@@ -290,7 +297,12 @@ class NewsAutomation:
                         "pub_date": pub_date
                     })
                 
-                return news_list
+                # 조회수 높은 뉴스 선별 로직
+                if self.sort_var.get() == "조회수":
+                    news_list = self.filter_high_view_news(news_list)
+                
+                # 요청한 개수만큼만 반환
+                return news_list[:int(self.count_var.get())]
             else:
                 self.log_message(f"뉴스 API 오류: {response.status_code}")
                 if response.status_code == 401:
@@ -302,6 +314,64 @@ class NewsAutomation:
         except Exception as e:
             self.log_message(f"뉴스 가져오기 오류: {str(e)}")
             return []
+    
+    def filter_high_view_news(self, news_list):
+        """조회수 높은 뉴스 선별"""
+        try:
+            # 조회수 높은 뉴스 특징을 기반으로 선별
+            scored_news = []
+            
+            for news in news_list:
+                score = 0
+                title = news['title'].lower()
+                description = news['description'].lower()
+                
+                # 조회수 높은 뉴스 키워드 (화제성, 중요도)
+                hot_keywords = [
+                    '대통령', '총리', '국회', '정부', '정치',
+                    '경제', '금융', '주식', '부동산', '기업',
+                    '사건', '사고', '범죄', '교통', '교육',
+                    '코로나', '감염', '백신', '의료', '건강',
+                    '날씨', '태풍', '지진', '재해', '안전',
+                    '스포츠', '축구', '야구', '올림픽', '월드컵',
+                    '연예', '드라마', '영화', '음악', '가수',
+                    'IT', '기술', '인공지능', '로봇', '스마트폰'
+                ]
+                
+                # 키워드 매칭 점수
+                for keyword in hot_keywords:
+                    if keyword in title:
+                        score += 3
+                    if keyword in description:
+                        score += 1
+                
+                # 제목 길이 (적당한 길이가 조회수 높음)
+                title_len = len(news['title'])
+                if 20 <= title_len <= 60:
+                    score += 2
+                elif 10 <= title_len <= 80:
+                    score += 1
+                
+                # 설명 길이 (충분한 설명이 있는 뉴스)
+                desc_len = len(news['description'])
+                if desc_len > 50:
+                    score += 1
+                
+                # 발행 시간 (최근 뉴스 우선)
+                if news['pub_date']:
+                    score += 1
+                
+                scored_news.append((news, score))
+            
+            # 점수 순으로 정렬
+            scored_news.sort(key=lambda x: x[1], reverse=True)
+            
+            # 상위 뉴스만 반환
+            return [news for news, score in scored_news]
+            
+        except Exception as e:
+            self.log_message(f"조회수 뉴스 선별 오류: {str(e)}")
+            return news_list
     
     def send_to_kakao(self, message):
         """카카오톡으로 메시지 전송"""
