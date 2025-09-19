@@ -8,7 +8,7 @@
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
+from tkinter import ttk, messagebox, scrolledtext, simpledialog
 import threading
 import time
 import schedule
@@ -23,7 +23,14 @@ class NewsAutomation:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("네이버 뉴스 자동화")
-        self.root.geometry("600x500")
+        self.root.geometry("700x600")
+        self.root.resizable(True, True)
+        
+        # 화면 중앙에 배치
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (700 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (600 // 2)
+        self.root.geometry(f"700x600+{x}+{y}")
         
         # API 키
         self.naver_id = ""
@@ -46,8 +53,31 @@ class NewsAutomation:
         
     def setup_ui(self):
         """GUI 설정"""
-        main_frame = ttk.Frame(self.root, padding="10")
+        # 스크롤 가능한 캔버스 생성
+        canvas = tk.Canvas(self.root)
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # 메인 프레임
+        main_frame = ttk.Frame(scrollable_frame, padding="15")
         main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 스크롤바와 캔버스 배치
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # 마우스 휠 바인딩
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
         
         # 제목
         title_label = ttk.Label(main_frame, text="네이버 뉴스 자동화", font=("Arial", 16, "bold"))

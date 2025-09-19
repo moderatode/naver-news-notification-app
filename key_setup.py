@@ -13,8 +13,14 @@ class KeySetupGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("API 키 설정")
-        self.root.geometry("500x400")
-        self.root.resizable(False, False)
+        self.root.geometry("600x500")
+        self.root.resizable(True, True)
+        
+        # 화면 중앙에 배치
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (600 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (500 // 2)
+        self.root.geometry(f"600x500+{x}+{y}")
         
         # 키 파일 경로
         self.keys_file = "keys.txt"
@@ -24,9 +30,31 @@ class KeySetupGUI:
         
     def setup_ui(self):
         """GUI 인터페이스 설정"""
+        # 스크롤 가능한 캔버스 생성
+        canvas = tk.Canvas(self.root)
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
         # 메인 프레임
-        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame = ttk.Frame(scrollable_frame, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 스크롤바와 캔버스 배치
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # 마우스 휠 바인딩
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
         
         # 제목
         title_label = ttk.Label(main_frame, text="API 키 설정", font=("Arial", 16, "bold"))
