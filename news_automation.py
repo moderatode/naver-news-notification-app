@@ -117,7 +117,7 @@ class NewsAutomation:
         
         # 키워드 입력 (관련도순 선택 시에만 표시)
         ttk.Label(news_frame, text="키워드:").grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
-        self.keyword_var = tk.StringVar(value="정치 경제 사회")
+        self.keyword_var = tk.StringVar(value="정치, 경제, 사회")
         self.keyword_entry = ttk.Entry(news_frame, textvariable=self.keyword_var, width=30)
         self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
         
@@ -304,10 +304,12 @@ class NewsAutomation:
             
             # 검색 키워드 설정
             if self.sort_var.get() == "관련도":
-                # 사용자가 입력한 키워드 사용
+                # 사용자가 입력한 키워드 사용 (쉼표로 분리된 키워드 처리)
                 query = self.keyword_var.get().strip()
                 if not query:
-                    query = "정치 경제 사회"  # 기본값
+                    query = "정치, 경제, 사회"  # 기본값
+                # 쉼표로 분리된 키워드를 공백으로 연결
+                query = query.replace(",", " ").replace("  ", " ").strip()
             else:
                 # 최신순: 시간대별 키워드
                 current_hour = datetime.now().hour
@@ -323,9 +325,13 @@ class NewsAutomation:
             # 정렬 옵션 설정
             sort_option = "date" if self.sort_var.get() == "최신" else "sim"
             
+            # 충분한 개수를 가져오기 위해 더 많이 요청
+            requested_count = int(self.count_var.get())
+            fetch_count = max(requested_count * 5, 50)  # 최소 50개, 요청 개수의 5배
+            
             params = {
                 "query": query,
-                "display": int(self.count_var.get()) * 3,  # 중복 제거를 위해 더 많이 가져오기
+                "display": min(fetch_count, 100),  # API 최대 100개 제한
                 "sort": sort_option
             }
             
@@ -530,7 +536,7 @@ class NewsAutomation:
                 return
             
             # 메시지 구성
-            message = "🔥 오늘의 핫 뉴스\n\n"
+            message = "📰 오늘의 최신 뉴스\n\n"
             for i, news in enumerate(new_news[:5], 1):
                 message += f"{i}. {news['title']}\n"
                 if news['link']:
@@ -646,7 +652,7 @@ class NewsAutomation:
                 self.log_message("-" * 30)
             
             # 메시지 미리보기
-            message = "🔥 오늘의 핫 뉴스\n\n"
+            message = "📰 오늘의 최신 뉴스\n\n"
             for i, news in enumerate(news_list[:5], 1):
                 message += f"{i}. {news['title']}\n"
                 if news['link']:
@@ -687,7 +693,7 @@ class NewsAutomation:
             self.log_message(f"✅ {len(news_list)}개의 뉴스를 가져왔습니다.")
             
             # 메시지 구성
-            message = "🔥 오늘의 핫 뉴스\n\n"
+            message = "📰 오늘의 최신 뉴스\n\n"
             for i, news in enumerate(news_list[:5], 1):
                 message += f"{i}. {news['title']}\n"
                 if news['link']:
