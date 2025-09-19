@@ -356,7 +356,7 @@ class NewsAutomation:
             # 충분한 개수를 가져오기 위해 더 많이 요청
             requested_count = int(self.count_var.get())
             # 전송된 뉴스가 많을 수 있으므로 더 많이 가져오기
-            fetch_count = max(requested_count * 10, 100)  # 최소 100개, 요청 개수의 10배
+            fetch_count = max(requested_count * 20, 100)  # 최소 100개, 요청 개수의 20배
             
             params = {
                 "query": query,
@@ -443,16 +443,14 @@ class NewsAutomation:
                 # 전송된 뉴스인지 확인
                 if link not in self.sent_urls:
                     new_news.append(news)
-                    # 요청한 개수만큼 모이면 중단
-                    if len(new_news) >= requested_count:
-                        break
                 else:
                     removed_count += 1
             
             if removed_count > 0:
                 self.log_message(f"전송된 뉴스 제거: {removed_count}개")
             
-            return new_news
+            # 요청한 개수만큼 반환 (부족하면 있는 만큼만)
+            return new_news[:requested_count]
             
         except Exception as e:
             self.log_message(f"전송된 뉴스 제거 오류: {str(e)}")
