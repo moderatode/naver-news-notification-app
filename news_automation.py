@@ -116,20 +116,19 @@ class NewsAutomation:
         sort_combo.grid(row=0, column=3)
         sort_combo.bind("<<ComboboxSelected>>", self.on_sort_change)
         
-        # 키워드 입력 (관련도순 선택 시에만 표시)
-        ttk.Label(news_frame, text="키워드:").grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
-        self.keyword_var = tk.StringVar(value="정치, 경제, 사회")
-        self.keyword_entry = ttk.Entry(news_frame, textvariable=self.keyword_var, width=30)
-        self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
-        
-        # 키워드 예시
-        keyword_example = ttk.Label(news_frame, text="예시: 정치, 경제, 사회, 스포츠, 연예, IT, 부동산, 주식", 
-                                   font=("Arial", 8), foreground="gray")
-        keyword_example.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(5, 0))
-        
-        # 키워드 프레임 (초기에는 숨김)
+        # 키워드 프레임 (관련도순 선택 시에만 표시)
         self.keyword_frame = ttk.Frame(news_frame)
         self.keyword_frame.grid(row=1, column=0, columnspan=4, sticky=tk.W, pady=(10, 0))
+        
+        ttk.Label(self.keyword_frame, text="키워드:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.keyword_var = tk.StringVar(value="정치, 경제, 사회")
+        self.keyword_entry = ttk.Entry(self.keyword_frame, textvariable=self.keyword_var, width=30)
+        self.keyword_entry.grid(row=0, column=1, sticky=tk.W, padx=(5, 0))
+        
+        # 키워드 예시
+        keyword_example = ttk.Label(self.keyword_frame, text="예시: 정치, 경제, 사회, 스포츠, 연예, IT, 부동산, 주식", 
+                                   font=("Arial", 8), foreground="gray")
+        keyword_example.grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(5, 0))
         
         # 스케줄 설정
         schedule_frame = ttk.LabelFrame(main_frame, text="스케줄 설정", padding="10")
@@ -169,9 +168,8 @@ class NewsAutomation:
         self.stop_button = ttk.Button(control_frame, text="중지", command=self.stop_scheduler, state="disabled")
         self.stop_button.pack(side=tk.LEFT, padx=(0, 10))
         
-        ttk.Button(control_frame, text="테스트 전송", command=self.test_send).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(control_frame, text="뉴스 테스트", command=self.test_news).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(control_frame, text="뉴스 전송 테스트", command=self.test_news_send).pack(side=tk.LEFT)
+        ttk.Button(control_frame, text="실시간 전송", command=self.test_news_send).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(control_frame, text="테스트 전송", command=self.test_send).pack(side=tk.LEFT)
         
         # 로그
         log_frame = ttk.LabelFrame(main_frame, text="로그", padding="10")
@@ -228,10 +226,10 @@ class NewsAutomation:
         """정렬 방식 변경 시 키워드 입력 칸 표시/숨김"""
         if self.sort_var.get() == "관련도":
             # 키워드 입력 칸 표시
-            self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+            self.keyword_frame.grid(row=1, column=0, columnspan=4, sticky=tk.W, pady=(10, 0))
         else:
             # 키워드 입력 칸 숨김
-            self.keyword_entry.grid_remove()
+            self.keyword_frame.grid_remove()
     
     def on_mode_change(self):
         """스케줄 모드 변경 시 UI 업데이트"""
@@ -657,53 +655,6 @@ class NewsAutomation:
                 messagebox.showerror("실패", "테스트 전송에 실패했습니다.")
         except Exception as e:
             self.log_message(f"테스트 전송 오류: {str(e)}")
-    
-    def test_news(self):
-        """뉴스 수집 테스트"""
-        if not self.naver_id or not self.naver_secret:
-            messagebox.showwarning("경고", "먼저 API 키를 설정해주세요.")
-            return
-        
-        try:
-            self.log_message("🔥 뉴스 수집 테스트 시작...")
-            
-            # 뉴스 가져오기
-            news_list = self.get_news()
-            
-            if not news_list:
-                self.log_message("❌ 뉴스를 가져올 수 없습니다.")
-                messagebox.showwarning("경고", "뉴스를 가져올 수 없습니다. API 키를 확인해주세요.")
-                return
-            
-            self.log_message(f"✅ {len(news_list)}개의 뉴스를 가져왔습니다.")
-            self.log_message("=" * 50)
-            
-            # 뉴스 상세 정보 표시
-            for i, news in enumerate(news_list, 1):
-                self.log_message(f"{i}. {news['title']}")
-                if news['description']:
-                    self.log_message(f"   📝 {news['description'][:100]}...")
-                if news['link']:
-                    self.log_message(f"   🔗 {news['link']}")
-                self.log_message("-" * 30)
-            
-            # 메시지 미리보기
-            message = "📰 오늘의 최신 뉴스\n\n"
-            for i, news in enumerate(news_list[:5], 1):
-                message += f"{i}. {news['title']}\n"
-                if news['link']:
-                    message += f"   링크: {news['link']}\n"
-                message += "\n"
-            
-            self.log_message("📱 전송될 메시지 미리보기:")
-            self.log_message(message)
-            self.log_message("=" * 50)
-            
-            messagebox.showinfo("뉴스 테스트 완료", f"{len(news_list)}개의 뉴스를 성공적으로 가져왔습니다.\n로그를 확인해주세요.")
-            
-        except Exception as e:
-            self.log_message(f"❌ 뉴스 테스트 오류: {str(e)}")
-            messagebox.showerror("오류", f"뉴스 테스트 중 오류가 발생했습니다: {str(e)}")
     
     def test_news_send(self):
         """뉴스 수집 및 카카오톡 전송 테스트"""
