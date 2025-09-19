@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+API 키 설정 예시 파일
+- 이 파일을 api_keys.py로 복사하고 실제 API 키를 입력하세요
+"""
+
+# 네이버 뉴스 검색 API 키
+# 네이버 개발자센터(https://developers.naver.com)에서 발급받으세요
+NAVER_CLIENT_ID = "YOUR_NAVER_CLIENT_ID"
+NAVER_CLIENT_SECRET = "YOUR_NAVER_CLIENT_SECRET"
+
+# 카카오톡 API 키
+# 카카오 개발자센터(https://developers.kakao.com)에서 발급받으세요
+KAKAO_CLIENT_ID = "YOUR_KAKAO_CLIENT_ID"
+
+# API 키 설정 방법:
+# 1. 이 파일을 api_keys.py로 복사
+# 2. 위의 YOUR_NAVER_CLIENT_ID, YOUR_NAVER_CLIENT_SECRET을 실제 네이버 API 키로 교체
+# 3. YOUR_KAKAO_CLIENT_ID를 실제 카카오 API 키로 교체
+
+# 네이버 API 신청 방법:
+# 1. https://developers.naver.com 접속
+# 2. 로그인 후 "Application" > "애플리케이션 등록"
+# 3. 애플리케이션 이름, 사용 API 선택 (검색 API)
+# 4. 등록 후 Client ID, Client Secret 확인
+
+# 카카오 API 신청 방법:
+# 1. https://developers.kakao.com 접속
+# 2. 로그인 후 "내 애플리케이션" > "애플리케이션 추가"
+# 3. 앱 이름, 플랫폼 설정
+# 4. "제품 설정" > "카카오 로그인" 활성화
+# 5. "제품 설정" > "메시지" > "나에게 보내기" 활성화
+# 6. "앱 키"에서 REST API 키 확인
