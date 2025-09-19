@@ -22,15 +22,15 @@ import os
 class NewsAutomation:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("네이버 뉴스 자동화")
-        self.root.geometry("700x600")
+        self.root.title("📰 네이버 뉴스 자동화")
+        self.root.geometry("650x550")
         self.root.resizable(True, True)
         
         # 화면 중앙에 배치
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (700 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (600 // 2)
-        self.root.geometry(f"700x600+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - (650 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (550 // 2)
+        self.root.geometry(f"650x550+{x}+{y}")
         
         # API 키
         self.naver_id = ""
@@ -120,6 +120,11 @@ class NewsAutomation:
         self.keyword_var = tk.StringVar(value="정치, 경제, 사회")
         self.keyword_entry = ttk.Entry(news_frame, textvariable=self.keyword_var, width=30)
         self.keyword_entry.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        
+        # 키워드 예시
+        keyword_example = ttk.Label(news_frame, text="예시: 정치, 경제, 사회, 스포츠, 연예, IT, 부동산, 주식", 
+                                   font=("Arial", 8), foreground="gray")
+        keyword_example.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(5, 0))
         
         # 키워드 프레임 (초기에는 숨김)
         self.keyword_frame = ttk.Frame(news_frame)
